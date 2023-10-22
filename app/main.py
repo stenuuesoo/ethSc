@@ -7,9 +7,7 @@ if __name__ == "__main__":
 
     db = DatabaseConnection()
     rules = Ruleset()
-    db.connect()
     api_key, api_secret = db.fetch_binance_keys()
-    db.disconnect()
 
     if api_key and api_secret:
         binance = Binance(api_key, api_secret)

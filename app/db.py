@@ -59,8 +59,10 @@ class DatabaseConnection:
         self.disconnect()
 
     def fetch_binance_keys(self):
+        self.connect()
         query = "SELECT name, api_key, api_secret FROM api_keys_table"
         result = self.fetch_data(query)
+        self.disconnect()
         if result:
             for row in result:
                 if row[0] == 'binance':  # 0 is the index for 'name'

@@ -15,4 +15,3 @@ class Forgemaster:
         self.db.retrieve_trade_from_db(new_trade.sample_trade['trade_id'])
 
 
-
