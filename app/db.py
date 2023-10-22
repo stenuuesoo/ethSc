@@ -2,7 +2,7 @@ import mysql.connector
 
 
 class DatabaseConnection:
-    def __init__(self, host="localhost", port="8889", user="eth_snd_1337", password="test123aAa4!", database="ethSq_sandbox"):
+    def __init__(self, host="localhost", port="3306", user="root1", password="root1", database="ethSq_sandbox"):
         #host="host.docker.internal"
         self.host = host
         self.port = port
