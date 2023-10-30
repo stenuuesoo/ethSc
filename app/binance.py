@@ -32,3 +32,4 @@ class Binance:
                 print(f"Free ETH: {asset_info['free']}")
                 print(f"Locked ETH: {asset_info['locked']}")
                 break
+

@@ -1,5 +1,6 @@
+import hashlib
+import uuid
 import mysql.connector
-
 
 class DatabaseConnection:
     def __init__(self, host="localhost", port="3306", user="root1", password="root1", database="ethSq_sandbox"):
@@ -36,7 +37,7 @@ class DatabaseConnection:
             else:
                 cursor.execute(query)
             self.connection.commit()
-            print("Query executed successfully.")
+            #print("Query executed successfully.")
         except mysql.connector.Error as err:
             print(f"Error: {err}")
 
@@ -163,3 +164,53 @@ class DatabaseConnection:
 
         print("Trade retrieved from database:", trade.get('trade_id'))
         self.disconnect()
+
+    def add_new_user(self, username, password):
+        self.connect()
+        user_id = str(uuid.uuid4())
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        query = "INSERT INTO users (user_id, username, hashed_password) VALUES (%s, %s, %s)"
+        self.execute_query(query, (user_id, username, password))
+        self.disconnect()
+        return user_id
+
+
+
+    def generate_and_store_api_key(self, user_id):
+        self.connect()
+        # Generate a unique API key
+        api_key = str(uuid.uuid4())
+
+        # Hash the API key
+        hashed_api_key = hashlib.sha256(api_key.encode()).hexdigest()
+
+        # Store hashed API key in the database
+        query = "UPDATE users SET api_key = %s WHERE user_id = %s"
+        self.execute_query(query, (hashed_api_key, user_id))
+        self.disconnect()
+        # Return the original (non-hashed) API key to the user
+        return api_key
+
+    def get_username(self, user_id):
+        self.connect()
+        cursor = self.connection.cursor()
+        username = None
+
+        # Correct the SQL query and parameter placeholder
+        query = "SELECT username FROM users WHERE user_id = %s"
+
+        try:
+            cursor.execute(query, (user_id,))
+            result = cursor.fetchone()  # Fetch the first row
+
+            if result:
+                username = result[0]  # Get the first column (username) from the first row
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+
+        finally:
+            cursor.close()
+            self.disconnect()
+
+        return username
+
