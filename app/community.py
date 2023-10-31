@@ -1,7 +1,7 @@
 import random
 
 
-class GoldenMinion:
+class Minion:
 
     def __init__(self, db):
         self.nouns = ["dog", "cat", "fish", "bird"]
@@ -10,7 +10,7 @@ class GoldenMinion:
 
         self.db = db
 
-    def community(self):
+    def create_minion(self):
         # Using predefined lists
         nouns = self.nouns
         adjectives = self.adjectives
@@ -27,7 +27,7 @@ class GoldenMinion:
         user_id = self.db.add_new_user(username, password)
 
         self.db.generate_and_store_api_key(user_id)
-
+        self.minion_says_hello(user_id)
         return user_id
 
     def minion_says_hello(self, user_id):

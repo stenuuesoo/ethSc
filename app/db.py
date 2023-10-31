@@ -169,7 +169,8 @@ class DatabaseConnection:
         self.connect()
         user_id = str(uuid.uuid4())
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        query = "INSERT INTO users (user_id, username, hashed_password) VALUES (%s, %s, %s)"
+        password = hashed_password
+        query = "INSERT INTO users (user_id, username, password) VALUES (%s, %s, %s)"
         self.execute_query(query, (user_id, username, password))
         self.disconnect()
         return user_id
