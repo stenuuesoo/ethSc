@@ -13,6 +13,7 @@ class Binance:
             'enableRateLimit': True
         })
         self.exchange.set_sandbox_mode(True)
+        #self.print_eth_balance()
 
     def fetch_ticker(self, symbol):
         return self.exchange.fetch_ticker(symbol)

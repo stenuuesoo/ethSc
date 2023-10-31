@@ -1,23 +1,40 @@
 from community import Minion
-from trade import Trade
+import time
+import logging
+import asyncio
+
+#logging.basicConfig(level=logging.INFO)
 
 
 class Forgemaster:
-    def __init__(self, db, rules, binance):
+    def __init__(self, db, binance):
         self.db = db
-        self.rules = rules
         self.binance = binance
+        self.max_active_minions = 10
+        self.current_recruitment = 0
 
-    def alchemy(self):
+    async def alchemy(self):
+        tasks = []
+        while True:
+            if self.current_recruitment < self.max_active_minions:
+                self.current_recruitment += 1
+                minion = Minion(self.db)
+                minion_id = minion.create_minion()
+                task = asyncio.ensure_future(self.manage_minion(minion, minion_id))
+                tasks.append(task)
+            await asyncio.sleep(5)  # Sleep for 1 second
 
-        self.rules.print_daily_trade_limit()
-        self.binance.print_eth_balance()
+    async def manage_minion(self, minion, minion_id):
+        while True:
+            achievement = minion.explore(minion_id)
+            if achievement < 0:
+                self.current_recruitment -= 1
+                print(f"{self.db.get_username(minion_id)} tucks in for the rainy night and tries again tommorrow...")
+                break  # Stop this minion from exploring
+            await asyncio.sleep(5)  # Sleep for 1 second
 
-        minion = Minion(self.db)
-        minion_id = minion.create_minion()
 
-        trade = Trade(self.db)
-        trade_id = trade.create_trade(minion_id)
+
 
 
 

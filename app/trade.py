@@ -6,9 +6,8 @@ class Trade:
         self.db = db
 
     def create_trade(self, minion_id):
-        self.sample_trade = {
+        sample_trade = {
             'trade_id': str(uuid.uuid4()),  # Generate a unique UUID
-            'minion_id': minion_id,
             'symbol': 'ETH/USD',
             'entry_price': 2000.00,
             'exit_price': 2100,
@@ -18,7 +17,8 @@ class Trade:
             'exit_timestamp': None,
             'profit_or_loss': 100,
             'sentiment_score': 0.75,
-            'leverage': 2.0
+            'leverage': 2.0,
+            'minion_id': minion_id
         }
-        self.db.save_trade_to_db(self.sample_trade)
-        self.db.retrieve_trade_from_db(self.sample_trade['trade_id'])
+        self.db.save_trade_to_db(sample_trade)
+        self.db.retrieve_trade_from_db(sample_trade['trade_id'])

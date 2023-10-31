@@ -30,16 +30,17 @@ class DatabaseConnection:
             #print("Connection closed.")
 
     def execute_query(self, query, data=None):
-        cursor = self.connection.cursor()
-        try:
-            if data:
-                cursor.execute(query, data)
-            else:
-                cursor.execute(query)
-            self.connection.commit()
-            #print("Query executed successfully.")
-        except mysql.connector.Error as err:
-            print(f"Error: {err}")
+        with self.connection.cursor() as cursor:
+            try:
+                if data:
+                    cursor.execute(query, data)
+                else:
+                    cursor.execute(query)
+                self.connection.commit()
+                return cursor.fetchall()  # Fetch the result
+            except mysql.connector.Error as err:
+                print(f"Error: {err}")
+                return None
 
     def fetch_data(self, query, data=None):
         cursor = self.connection.cursor()
@@ -90,8 +91,8 @@ class DatabaseConnection:
 
         # SQL query to insert data into the 'trades' table
         sql_query = """
-        INSERT INTO trades (trade_id, symbol, entry_price, exit_price, quantity, status, entry_timestamp, exit_timestamp, profit_or_loss, sentiment_score, leverage)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO trades (trade_id, symbol, entry_price, exit_price, quantity, status, entry_timestamp, exit_timestamp, profit_or_loss, sentiment_score, leverage, minion_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         # Data to be inserted
@@ -106,7 +107,8 @@ class DatabaseConnection:
             trade_data.get('exit_timestamp'),
             trade_data.get('profit_or_loss'),
             trade_data.get('sentiment_score'),
-            trade_data.get('leverage')
+            trade_data.get('leverage'),
+            trade_data.get('minion_id')
         )
 
         # Execute the query and commit the transaction
@@ -135,7 +137,7 @@ class DatabaseConnection:
         trade = None
 
         # SQL query to fetch data from the 'trades' table for a specific trade_id
-        sql_query = "SELECT trade_id, symbol, entry_price, exit_price, quantity, status, entry_timestamp, exit_timestamp, profit_or_loss, sentiment_score, leverage FROM trades WHERE trade_id = %s"
+        sql_query = "SELECT trade_id, symbol, entry_price, exit_price, quantity, status, entry_timestamp, exit_timestamp, profit_or_loss, sentiment_score, leverage, minion_id FROM trades WHERE trade_id = %s"
 
         try:
             cursor.execute(sql_query, (trade_id,))
@@ -153,7 +155,8 @@ class DatabaseConnection:
                     'exit_timestamp': result[7],
                     'profit_or_loss': result[8],
                     'sentiment_score': result[9],
-                    'leverage': result[10]
+                    'leverage': result[10],
+                    'minion_id': result[11]
                 }
 
         except mysql.connector.Error as err:
@@ -166,16 +169,25 @@ class DatabaseConnection:
         self.disconnect()
 
     def add_new_user(self, username, password):
+        #print("Attempting to connect to the database...")
         self.connect()
+        #print("Connected to the database.")
         user_id = str(uuid.uuid4())
+        #print(f"Generated user_id: {user_id}")
+
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        password = hashed_password
+        #print(f"Hashed password: {hashed_password}")
+
         query = "INSERT INTO users (user_id, username, password) VALUES (%s, %s, %s)"
-        self.execute_query(query, (user_id, username, password))
+        #print(f"Executing query to insert new user: {query}")
+
+        self.execute_query(query, (user_id, username, hashed_password))
+        #print("User inserted successfully.")
+
         self.disconnect()
+        #print("Disconnected from the database.")
+
         return user_id
-
-
 
     def generate_and_store_api_key(self, user_id):
         self.connect()
