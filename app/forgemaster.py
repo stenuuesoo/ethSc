@@ -1,9 +1,5 @@
 from community import Minion
-import time
-import logging
 import asyncio
-
-#logging.basicConfig(level=logging.INFO)
 
 
 class Forgemaster:
@@ -32,11 +28,4 @@ class Forgemaster:
                 print(f"{self.db.get_username(minion_id)} tucks in for the rainy night and tries again tommorrow...")
                 break  # Stop this minion from exploring
             await asyncio.sleep(5)  # Sleep for 1 second
-
-
-
-
-
-
-
 
